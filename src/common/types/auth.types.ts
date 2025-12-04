@@ -9,6 +9,15 @@ export type userPayloadType = {
     role: string;
 }
 
+export type JwtExpiry =
+  | `${number}${'ms' | 'milliseconds' | 'millisecond' | 'msecs' | 'msec'}`
+  | `${number}${'s' | 'seconds' | 'second' | 'secs' | 'sec'}`
+  | `${number}${'m' | 'minutes' | 'minute' | 'mins' | 'min'}`
+  | `${number}${'h' | 'hours' | 'hour' | 'hrs' | 'hr'}`
+  | `${number}${'d' | 'days' | 'day'}`
+  | `${number}${'w' | 'weeks' | 'week'}`
+  | `${number}${'y' | 'years' | 'year' | 'yrs' | 'yr'}`;
+
 // export enum UserRole {
 //     USER = 'user',
 //     ADMIN = 'admin',

@@ -16,7 +16,7 @@ export async function SuperAdminSeeder(dataSource: DataSource) {
                 name: 'Super Admin',
                 email: 'superadmin@default.com',
                 password: hashedPassword,
-                accessTokens: [],
+                refreshToken: null,
                 role: UserRole.SUPERADMIN,
                 isVerified: true
             }),
