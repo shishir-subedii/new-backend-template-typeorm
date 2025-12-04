@@ -10,18 +10,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from '../file-upload/file-upload.service';
 
-import {
-    ApiTags,
-    ApiConsumes,
-    ApiBody,
-    ApiResponse,
-    ApiOperation,
-} from '@nestjs/swagger';
 import { getDiskStorage, getFileInterceptor } from './file-upload.utils';
 import { MulterExceptionFilter } from 'src/common/filters/multer-exception.filter';
 import { UploadFolder } from 'src/common/enums/file-upload.enum';
 
-@ApiTags('File Upload') // groups endpoints in Swagger
 @Controller('file-upload')
 export class FileuploadController {
     constructor(private readonly fileUploadService: FileUploadService) { }
@@ -29,21 +21,6 @@ export class FileuploadController {
     @Post('profile')
     @UseInterceptors(getFileInterceptor('file', UploadFolder.PROFILES))
     @UseFilters(MulterExceptionFilter) // handles Multer errors
-    @ApiConsumes('multipart/form-data')
-    @ApiOperation({ summary: 'Upload profile picture' })
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                userId: { type: 'string', example: '123' },
-                file: {
-                    type: 'string',
-                    format: 'binary',
-                },
-            },
-            required: ['userId', 'file'],
-        },
-    })
     async uploadProfile(
         @UploadedFile() file: Express.Multer.File,
         @Req() req,
@@ -69,21 +46,7 @@ export class FileuploadController {
     @Post('application')
     @UseInterceptors(getFileInterceptor('file',UploadFolder.APPLICATIONS))
     @UseFilters(MulterExceptionFilter) // handles Multer errors
-    @ApiConsumes('multipart/form-data')
-    @ApiOperation({ summary: 'Upload application document' })
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                userId: { type: 'string', example: '123' },
-                file: {
-                    type: 'string',
-                    format: 'binary',
-                },
-            },
-            required: ['userId', 'file'],
-        },
-    })
+
     async uploadApplication(
         @UploadedFile() file: Express.Multer.File,
         @Req() req,

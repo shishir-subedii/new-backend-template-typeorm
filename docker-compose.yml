@@ -1,26 +1,26 @@
 services:
   postgres:
     image: postgres:15
-    container_name: pql-template-container
+    container_name: pql-template-typeorm-container
     restart: always
     environment:
-      POSTGRES_DB: pql-template-db
+      POSTGRES_DB: pql-template-typeorm-db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
       - '5432:5432'
     volumes:
-      - pg-template-v:/var/lib/postgresql/data
+      - pg-template-typeorm-v:/var/lib/postgresql/data
 
   valkey:
     image: valkey/valkey:7  # Use an official Valkey image
-    container_name: valkey-template-container
+    container_name: valkey-template-typeorm-container
     restart: always
     ports:
       - '6379:6379'  # Map the default Valkey port (6379)
     volumes:
-      - vk-template-v:/data # Volume for persistent Valkey data
+      - vk-template-typeorm-v:/data # Volume for persistent Valkey data
 
 volumes:
-  pg-template-v: 
-  vk-template-v: # Define the new volume for Valkey
+  pg-template-typeorm-v: 
+  vk-template-typeorm-v: # Define the new volume for Valkey

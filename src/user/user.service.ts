@@ -93,13 +93,13 @@ export class UserService {
                         existingUser.otp,
                     );
 
-                    const newToken = await this.authService.genTokens(
+                    const newToken = await this.authService.genSingleToken(
                         existingUser.id,
                         existingUser.email,
                         existingUser.role,
-                    );
+                    )
 
-                    return { tempToken: newToken.accessToken, message: "Account exists but not verified. A new OTP has been sent to email" };
+                    return { tempToken: newToken, message: "Account exists but not verified. A new OTP has been sent to email" };
                 }
                 throw new BadRequestException('Invalid credentials');
             }
@@ -223,32 +223,6 @@ export class UserService {
             .getOne();
     }
 
-
-    // Add token to user's token array
-    async addAccessToken(email: string, newToken: string) {
-        const user = await this.findCompleteProfileByEmail(email);
-        if (!user) throw new BadRequestException('User not found');
-
-        user.accessTokens = [...(user.accessTokens || []), newToken];
-        await this.usersRepository.save(user);
-    }
-
-    // Remove a specific token (logout from one device)
-    async removeAccessToken(email: string, tokenToRemove: string) {
-        const user = await this.findCompleteProfileByEmail(email);
-        if (!user) throw new BadRequestException('User not found');
-
-        user.accessTokens = (user.accessTokens || []).filter(
-            token => token !== tokenToRemove,
-        );
-        await this.usersRepository.save(user);
-    }
-
-    // Optional: remove all tokens (logout from all devices)
-    async removeAllAccessTokens(email: string) {
-        await this.usersRepository.update({ email }, { accessTokens: [] });
-    }
-
     async getUserProfile(email: string) {
         const user = await this.findOneByEmail(email);
         if (!user) {
@@ -283,7 +257,7 @@ export class UserService {
 
         const hashedPassword = await bcrypt.hash(body.newPassword, 10);
         user.password = hashedPassword;
-        user.accessTokens = []; // logout from all devices after password change
+        user.refreshToken = null; // logout from all devices after password change
 
         try {
             return await this.usersRepository.save(user);

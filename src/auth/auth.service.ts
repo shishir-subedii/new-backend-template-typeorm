@@ -3,7 +3,6 @@ import {
     forwardRef,
     Inject,
     Injectable,
-    InternalServerErrorException,
 } from '@nestjs/common';
 import { UserRegisterDto } from './dto/UserRegisterDto';
 import { UserService } from 'src/user/user.service';
@@ -11,14 +10,14 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserLoginDto } from './dto/UserLoginDto';
 import { changePasswordDto } from './dto/ChangePasswordDto';
-import { loginResponseType } from 'src/common/types/auth.types';
+import { JwtExpiry, loginResponseType } from 'src/common/types/auth.types';
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject(forwardRef(() => UserService))
         private userService: UserService,
-        private jwt: JwtService
+        private jwt: JwtService,
     ) { }
 
     async register(user: UserRegisterDto) {
@@ -55,7 +54,7 @@ export class AuthService {
         );
 
         // ✅ Add the generated token to accessTokens list
-        await this.userService.addAccessToken(user.email, accessToken);
+        // await this.userService.addAccessToken(user.email, accessToken);
 
         return {
             accessToken,
@@ -73,8 +72,8 @@ export class AuthService {
     }
 
     async logout(email: string, token: string) {
-        // Remove only the current token (per-session logout)
-        await this.userService.removeAccessToken(email, token);
+        // Remove only the current token (per-session logout);
+        // await this.userService.removeAccessToken(email, token);
     }
 
     async logoutAllSessions(email: string, password: string) {
@@ -88,27 +87,40 @@ export class AuthService {
             throw new BadRequestException('Invalid password');
         }
 
-        await this.userService.removeAllAccessTokens(email);
+        // await this.userService.removeAllAccessTokens(email);
     }
 
 
     async genTokens(id: string, email: string, role: string) {
-        const accessToken = this.jwt.sign(
-            { id, email, role },
-            {
-                secret: process.env.JWT_ACCESS_SECRET,
-                expiresIn: process.env.JWT_ACCESS_EXPIRE,
-            }
-        );
-        const refreshToken = this.jwt.sign(
-            { id, email, role },
-            {
-                secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESH_EXPIRE
-            }
-        )
+        const payload = { id, email, role };
+
+        const accessSecret = process.env.JWT_ACCESS_SECRET as string;
+        const accessExpire = process.env.JWT_ACCESS_EXPIRE as JwtExpiry;
+        const refreshSecret = process.env.JWT_REFRESH_SECRET as string;
+        const refreshExpire = process.env.JWT_REFRESH_EXPIRE as JwtExpiry;
+
+        const accessToken = await this.jwt.signAsync(payload, {
+            secret: accessSecret,
+            expiresIn: accessExpire,
+        });
+
+        const refreshToken = await this.jwt.signAsync(payload, {
+            secret: refreshSecret,
+            expiresIn: refreshExpire,
+        });
 
         return { accessToken, refreshToken };
+    }
+
+    async genSingleToken(id: string, email: string, role: string) {
+        const payload = { id, email, role };
+        const accessSecret = process.env.JWT_ACCESS_SECRET as string;
+        const accessExpire = process.env.JWT_ACCESS_EXPIRE as JwtExpiry;
+        const accessToken = await this.jwt.signAsync(payload, {
+            secret: accessSecret,
+            expiresIn: accessExpire,
+        });
+        return accessToken;
     }
 
     async changePassword(email: string, body: changePasswordDto) {

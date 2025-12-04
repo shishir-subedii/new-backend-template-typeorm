@@ -1,6 +1,5 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse, ApiBadRequestResponse, ApiBody, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { UserRegisterDto } from './dto/UserRegisterDto';
 import { UserLoginDto } from './dto/UserLoginDto';
 import { JwtAuthGuard } from 'src/common/auth/AuthGuard';
@@ -16,21 +15,6 @@ export class AuthController {
   /*
   Register new user
   */
-
-  @ApiOperation({ summary: 'Register new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'New user created successfully',
-  })
-  @ApiBadRequestResponse({
-    description: 'Password and Confirm Password donot match',
-  })
-  @ApiBadRequestResponse({
-    description: 'Email is already in use',
-  })
-  @ApiBody({
-    type: UserRegisterDto,
-  })
   @Post('register')
   async register(@Body() userData: UserRegisterDto) {
     const user = await this.authService.register(userData);
@@ -44,20 +28,6 @@ export class AuthController {
   /*
   Login user 
   */
-  @ApiOperation({ summary: 'Login user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User logged in successfully',
-  })
-  @ApiBadRequestResponse({
-    description: 'User not found',
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid password',
-  })
-  @ApiBody({
-    type: UserLoginDto,
-  })
   @Post('login')
   @HttpCode(200)
   async login(@Body() loginData: UserLoginDto) {
@@ -70,17 +40,6 @@ export class AuthController {
   }
 
   //verify signup OTP
-  @ApiOperation({ summary: 'Verify signup OTP' })
-  @ApiResponse({
-    status: 200,
-    description: 'OTP verified successfully',
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid OTP',
-  })
-  @ApiBody({
-    type: VerifyOtpDto,
-  })
   @Post('verify-otp')
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     const isValid = await this.authService.verifySignupOtp(verifyOtpDto.token, verifyOtpDto.otp);
@@ -96,15 +55,6 @@ export class AuthController {
   /*
   Logout
   */
-  @ApiOperation({ summary: 'Logout user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User logged out successfully',
-  })
-  @ApiBearerAuth()
-  @ApiBadRequestResponse({
-    description: 'User not found',
-  })
   @Get('logout')
   @UseGuards(JwtAuthGuard)
   async logout(@Req() req: Request) {
@@ -130,15 +80,6 @@ export class AuthController {
   Logout from all sessions 
   Take password in body and token in header
   */
-  @Patch('logout-all')
-  @ApiOperation({ summary: 'Logout user from all sessions' })
-  @ApiBearerAuth()
-  @ApiBadRequestResponse({
-    description: 'User not found',
-  })
-  @ApiBody({
-    type: LogOutAllDto,
-  })
   @UseGuards(JwtAuthGuard)
   async logoutAll(@Req() req: Request, @Body() body: LogOutAllDto) {
     const user = req['user'] as userPayloadType;
@@ -152,18 +93,6 @@ export class AuthController {
   /*
   Change user password
   */
-  @ApiOperation({ summary: 'Change user password' })
-  @ApiResponse({
-    status: 200,
-    description: 'User password changed successfully',
-  })
-  @ApiBearerAuth()
-  @ApiBadRequestResponse({
-    description: 'User not found',
-  })
-  @ApiBadRequestResponse({
-    description: 'Old password is incorrect',
-  })
   @Post('change-password')
   @UseGuards(JwtAuthGuard)
   async changePassword(@Req() req: Request, @Body() body: changePasswordDto) {

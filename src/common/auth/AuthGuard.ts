@@ -38,10 +38,7 @@ export class JwtAuthGuard implements CanActivate {
                     secret: process.env.JWT_ACCESS_SECRET,
                 });
             const user = await this.userService.findCompleteProfileByEmail(payload.email);
-            if (!user || !user.accessTokens || !user.accessTokens.includes(token)) {
-                throw new UnauthorizedException('User not logged-in');
-            }
-
+            
             if (requiredRoles && !requiredRoles.includes(payload.role)) {
                 throw new ForbiddenException(
                     'Forbidden: You are not authorized to access this route',

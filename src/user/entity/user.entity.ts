@@ -25,12 +25,10 @@ export class User {
 
     @Column({
         type: 'text',
-        array: true,
         nullable: true,
         select: false,
-        default: () => 'ARRAY[]::TEXT[]',
     })
-    accessTokens: string[] | null;
+    refreshToken: string | null;
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
@@ -47,6 +45,9 @@ export class User {
         default: UserRole.USER,
     })
     role: UserRole;
+
+    @Column({ type: 'boolean', default: true })
+    isActive: boolean;
 
     @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date;
